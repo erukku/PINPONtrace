@@ -7,7 +7,7 @@ from pylab import *
 import struct
 
 
-border = 0.3 #閾値
+border = 0.3 #音量の閾値
 
 def filter(input):
     fs = 44100

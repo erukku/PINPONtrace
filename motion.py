@@ -5,7 +5,7 @@ import csv
 
 parser = argparse.ArgumentParser(description='This program shows how to use background subtraction methods provided by \
                                               OpenCV. You can process both videos and images.')
-parser.add_argument('--input', type=str, help='Path to a video or a sequence of image.', default='data.mp4')
+parser.add_argument('--input', type=str, help='Path to a video or a sequence of image.', default='VID_20190718_184216.mp4')
 parser.add_argument('--algo', type=str, help='Background subtraction method (KNN, MOG2).', default='MOG2')
 args = parser.parse_args()
 
@@ -26,7 +26,7 @@ if not capture.isOpened:
     exit(0)
 count = 0 #フレーム数
 Co = 0 #サーブの区切りを判別する為の変数
-al = []
+al = [] #いったん入れる用
 aL = [] #最終的なデータ
 
 
@@ -107,14 +107,14 @@ while True:
                     kp = 2
 
     if kp == 0:
-        if Co >= 80:
+        if Co >= 80: #一定以上の間変化がない/区切る
             aL.append(al)
             al = []
         Co += 1
     else:
         Co = 0
           
-    for i in al:
+    for i in al: #動画に玉の位置を出力する
         cv.circle(fram,(i[0][0],i[0][1]),i[1],(255,255,0),-1)
 
     cv.rectangle(frame, (950, 530), (970,570), (0,255,0), -1)
@@ -142,8 +142,13 @@ csv_file = open('test.csv', 'w')
 fieldnames = ['frame','Place_x','Place_y','radius', 'OnGround','times']
 wRiter = csv.DictWriter(csv_file, fieldnames=fieldnames)
 wRiter.writeheader()
+co = 1
 for i in range(len(aL)):
+    Co = 0
     for j in range(len(aL[i])):
-            if aL[i][j][0][1] >= 400 and len(aL[i]) >= 40:
-                wRiter.writerow({'frame':aL[i][j][-1],'Place_x': aL[i][j][0][0], 'Place_y': aL[i][j][0][1],'radius':aL[i][j][1],'OnGround': 0,'times':i})
+        if aL[i][j][0][1] >= 400 and len(aL[i]) >= 40:
+            wRiter.writerow({'frame':aL[i][j][-1],'Place_x': aL[i][j][0][0], 'Place_y': aL[i][j][0][1],'radius':aL[i][j][1],'OnGround': 0,'times':co})
+            Co += 1
+    if Co >= 0:
+        co += 1
 
